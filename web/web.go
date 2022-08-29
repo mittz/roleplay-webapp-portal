@@ -195,14 +195,13 @@ func initRanking(c *gin.Context) {
 	queryTableCreation := `
 	DROP TABLE IF EXISTS rankings;
 	CREATE TABLE rankings (
-		id SERIAL NOT NULL,
 		ldap character varying(20),
 		total INTEGER,
+		cost_performance double precision,
 		executed_at timestamp,
-		PRIMARY KEY(id)
+		PRIMARY KEY(ldap)
 	);
 	GRANT ALL ON rankings TO PUBLIC;
-	GRANT USAGE ON SEQUENCE rankings_id_seq TO PUBLIC;
 	`
 
 	if _, err := dbPool.Exec(context.Background(), queryTableCreation); err != nil {
