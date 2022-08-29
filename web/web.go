@@ -35,7 +35,7 @@ const (
 
 func getRequestForm(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"requests":       queue.GetInstance().GetTasks(),
+		"ldaps":          job.GetLDAPsOfRunningExecutions(),
 		"datastudio_url": utils.GetEnvDataStudioURL(),
 	})
 }
@@ -47,36 +47,36 @@ func timeoutPostBenchmark(c *gin.Context) {
 func postBenchmark(c *gin.Context) {
 	r := request.NewRequest(c.PostForm("userkey"), c.PostForm("endpoint"), c.PostForm("project_id"))
 	if !r.IsValidEndpoint() {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.HTML(http.StatusBadRequest, "error.html", gin.H{
 			"message": MESSAGE_INVALID_ENDPOINT,
 		})
 		return
 	}
 
 	if !r.IsValidUserKey() {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.HTML(http.StatusBadRequest, "error.html", gin.H{
 			"message": MESSAGE_INVALID_USERKEY,
 		})
 		return
 	}
 
+	if job.IsRunning(r.Userkey) {
+		c.HTML(http.StatusNotAcceptable, "error.html", gin.H{
+			"message": MESSAGE_ALREADY_INQUEUE,
+		})
+		return
+	}
+
 	if err := job.CreateOrReplace(r.Userkey, r.Endpoint, r.ProjectID); err != nil {
-		c.JSON(http.StatusNotAcceptable, gin.H{
+		c.HTML(http.StatusNotAcceptable, "error.html", gin.H{
 			"message": MESSAGE_FAIL_HANDLEJOB,
 		})
 		return
 	}
 
 	q := queue.GetInstance()
-	if q.TaskExists(r.Userkey) {
-		c.JSON(http.StatusNotAcceptable, gin.H{
-			"message": MESSAGE_ALREADY_INQUEUE,
-		})
-		return
-	}
-
 	if err := q.EnqueueTask(r.Userkey); err != nil {
-		c.JSON(http.StatusNotAcceptable, gin.H{
+		c.HTML(http.StatusNotAcceptable, "error.html", gin.H{
 			"message": MESSAGE_FAIL_ENQUEUE,
 		})
 		return

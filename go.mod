@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/cloudsqlconn v0.5.1
 	cloud.google.com/go/cloudtasks v1.4.0
 	cloud.google.com/go/secretmanager v1.5.0
+	github.com/georgysavva/scany v1.1.0
 	github.com/gin-contrib/timeout v0.0.3
 	github.com/gin-gonic/gin v1.8.1
 	github.com/jackc/pgx/v4 v4.16.1
@@ -41,6 +42,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect

@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mittz/roleplay-webapp-portal/user"
 	"github.com/mittz/roleplay-webapp-portal/utils"
 )
 
@@ -23,8 +24,26 @@ type Job struct {
 	Metadata Metadata `json:"metadata"`
 }
 
+type Execution struct {
+	Metadata Metadata `json:"metadata"`
+	Status   Status   `json:"status"`
+}
+
 type Metadata struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`
+	Labels Labels `json:"labels"`
+}
+
+type Labels struct {
+	JobName string `json:"run.googleapis.com/job"`
+}
+
+type Status struct {
+	CompletionTime string `json:"completionTime"`
+}
+
+func getJobName(userkey string) string {
+	return fmt.Sprintf("assess-%s", strings.ToLower(userkey))
 }
 
 func jobExists(jobName string) bool {
@@ -51,6 +70,73 @@ func jobExists(jobName string) bool {
 
 	for _, job := range jobs {
 		if job.Metadata.Name == jobName {
+			return true
+		}
+	}
+
+	return false
+}
+
+func getExecutions() []Execution {
+	outDescribe, err := exec.Command(
+		"gcloud",
+		"beta",
+		"run",
+		"jobs",
+		"executions",
+		"list",
+		"--region=us-central1",
+		fmt.Sprintf("--project=%s", utils.GetEnvProjectID()),
+		"--format=json",
+	).Output()
+	if err != nil {
+		log.Printf("getExecutions: %v", err)
+		return []Execution{}
+	}
+
+	var executions []Execution
+	if err := json.Unmarshal(outDescribe, &executions); err != nil {
+		log.Println(err)
+		return []Execution{}
+	}
+
+	return executions
+}
+
+func getExecutionsByUserkey(userkey string) []Execution {
+	jobName := getJobName(userkey)
+	outDescribe, err := exec.Command(
+		"gcloud",
+		"beta",
+		"run",
+		"jobs",
+		"executions",
+		"list",
+		"--job",
+		jobName,
+		"--region=us-central1",
+		fmt.Sprintf("--project=%s", utils.GetEnvProjectID()),
+		"--format=json",
+	).Output()
+	if err != nil {
+		log.Printf("getExecutionsByUserkey: %v", err)
+		return []Execution{}
+	}
+
+	var executions []Execution
+	if err := json.Unmarshal(outDescribe, &executions); err != nil {
+		log.Println(err)
+		return []Execution{}
+	}
+
+	return executions
+}
+
+func IsRunning(userkey string) bool {
+	executions := getExecutionsByUserkey(userkey)
+
+	for _, execution := range executions {
+		if execution.Status.CompletionTime == "" {
 			return true
 		}
 	}
@@ -135,7 +221,7 @@ func updateJob(jobName string, userkey string, endpoint string, projectID string
 }
 
 func CreateOrReplace(userkey string, endpoint string, projectID string) error {
-	jobName := fmt.Sprintf("assess-%s", strings.ToLower(userkey))
+	jobName := getJobName(userkey)
 
 	if !jobExists(jobName) {
 		if err := createJob(jobName, userkey, endpoint, projectID); err != nil {
@@ -148,4 +234,24 @@ func CreateOrReplace(userkey string, endpoint string, projectID string) error {
 	}
 
 	return nil
+}
+
+func GetLDAPsOfRunningExecutions() []string {
+	executions := getExecutions()
+	users := user.GetUsers()
+
+	var ldaps []string
+	u := make(map[string]string)
+
+	for _, user := range users {
+		u[getJobName(user.Userkey)] = user.LDAP
+	}
+
+	for _, execution := range executions {
+		if execution.Status.CompletionTime == "" {
+			ldaps = append(ldaps, u[execution.Metadata.Labels.JobName])
+		}
+	}
+
+	return ldaps
 }

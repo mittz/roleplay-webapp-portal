@@ -8,7 +8,6 @@ import (
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/mittz/roleplay-webapp-portal/utils"
-	"google.golang.org/api/iterator"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 )
 
@@ -23,58 +22,11 @@ type Queue struct {
 	queueFullPath string
 }
 
-type Task struct {
-	Name string
-}
-
 func GetInstance() Queue {
 	return Queue{
 		id:            QUEUE_NAME,
 		queueFullPath: fmt.Sprintf("projects/%s/locations/%s/queues/%s", utils.GetEnvProjectID(), QUEUE_REGION, QUEUE_NAME),
 	}
-}
-
-func (q Queue) GetTasks() []Task {
-	var tasks []Task
-
-	ctx := context.Background()
-	c, err := cloudtasks.NewClient(ctx)
-	if err != nil {
-		log.Println(err)
-		return []Task{}
-	}
-	defer c.Close()
-
-	req := &taskspb.ListTasksRequest{
-		Parent: q.queueFullPath,
-	}
-	it := c.ListTasks(ctx, req)
-	for {
-		resp, err := it.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Println(err)
-			return []Task{}
-		}
-
-		tasks = append(tasks, Task{Name: resp.Name})
-	}
-
-	return tasks
-}
-
-func (q Queue) TaskExists(userkey string) bool {
-	tasks := q.GetTasks()
-
-	for _, task := range tasks {
-		if strings.Contains(task.Name, userkey) {
-			return true
-		}
-	}
-
-	return false
 }
 
 func (q Queue) EnqueueTask(userkey string) error {

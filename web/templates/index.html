@@ -11,13 +11,13 @@
     <p>Scoring Server assesses qualities of your web application service based on performance and availability.</p>
   </div>
   <div class="container">
-    <h4>Waiting Queue</h4>
+    <h4>Running Jobs</h4>
     <div class="alert alert-primary" role="alert">
-      Running and waiting requests are listed in the following queue.
+      Running jobs are listed in the following queue.
     </div>
     <div class="p-3 mb-2 bg-light text-dark">
-      {{ range .requests }}
-        <span class="badge bg-info text-dark">{{ .LDAP }}</span>
+      {{ range .ldaps }}
+        <span class="badge bg-info text-dark">{{ . }}</span>
       {{ end }}
     </div>
   </div>

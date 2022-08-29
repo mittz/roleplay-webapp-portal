@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgx/v4"
 	"github.com/mittz/roleplay-webapp-portal/database"
 )
@@ -46,6 +47,17 @@ func GetUser(userkey string) User {
 	}
 
 	return user
+}
+
+func GetUsers() []*User {
+	dbPool := database.GetDatabaseConnection()
+
+	var users []*User
+	if err := pgxscan.Select(context.Background(), dbPool, &users, `SELECT userkey, ldap, team, region, sub_region, role from users`); err != nil {
+		log.Println(err)
+	}
+
+	return users
 }
 
 func (b BulkUsers) OverrideDatabase() error {
