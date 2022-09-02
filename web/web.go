@@ -164,8 +164,8 @@ func initJobHistory(c *gin.Context) {
 		id SERIAL NOT NULL,
 		userkey character varying(40) NOT NULL,
 		ldap character varying(20),
-		total INTEGER,
-		cost_performance double precision,
+		score INTEGER,
+		score_by_cost double precision,
 		performance INTEGER,
 		availability_rate INTEGER,
 		message character varying(200),
@@ -196,8 +196,8 @@ func initRanking(c *gin.Context) {
 	DROP TABLE IF EXISTS rankings;
 	CREATE TABLE rankings (
 		ldap character varying(20),
-		total INTEGER,
-		cost_performance double precision,
+		score INTEGER,
+		score_by_cost double precision,
 		executed_at timestamp,
 		PRIMARY KEY(ldap)
 	);
