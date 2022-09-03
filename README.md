@@ -24,6 +24,11 @@ $ curl -d @image-hashes.json -H "Admin-API-Key: ${ADMIN_API_KEY}" -H "Content-Ty
 ```
 
 ```
+$ curl -d @users.json -H "Admin-API-Key: ${ADMIN_API_KEY}" -H "Content-Type: application/json" ${PORTAL_ENDPOINT}/admin/bulk/use
+rs
+```
+
+```
 $ curl -X POST -H "Admin-API-Key: ${ADMIN_API_KEY}" -H "Content-Type: application/json" ${PORTAL_ENDPOINT}/admin/init/jobhistory
 ```
 

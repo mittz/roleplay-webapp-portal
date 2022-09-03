@@ -14,7 +14,6 @@ import (
 const (
 	QUEUE_REGION  = "us-central1"
 	RANDOM_LENGTH = 6
-	QUEUE_NAME    = "queue"
 )
 
 type Queue struct {
@@ -23,9 +22,10 @@ type Queue struct {
 }
 
 func GetInstance() Queue {
+	queueName := utils.GetEnvQueueName()
 	return Queue{
-		id:            QUEUE_NAME,
-		queueFullPath: fmt.Sprintf("projects/%s/locations/%s/queues/%s", utils.GetEnvProjectID(), QUEUE_REGION, QUEUE_NAME),
+		id:            queueName,
+		queueFullPath: fmt.Sprintf("projects/%s/locations/%s/queues/%s", utils.GetEnvProjectID(), QUEUE_REGION, queueName),
 	}
 }
 

@@ -53,6 +53,10 @@ func GetEnvDatabaseUser() string {
 	return getEnv("DATABASE_USER", "")
 }
 
+func GetEnvQueueName() string {
+	return getEnv("QUEUE_NAME", "")
+}
+
 func RandomString(n int) string {
 	seed, _ := crand.Int(crand.Reader, big.NewInt(math.MaxInt64))
 	rand.Seed(seed.Int64())
