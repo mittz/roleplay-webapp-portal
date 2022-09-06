@@ -36,6 +36,7 @@ const (
 func getRequestForm(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"ldaps":          job.GetLDAPsOfRunningExecutions(),
+		"userkey":        c.DefaultQuery("userkey", ""),
 		"datastudio_url": utils.GetEnvDataStudioURL(),
 	})
 }
@@ -48,28 +49,36 @@ func postBenchmark(c *gin.Context) {
 	r := request.NewRequest(c.PostForm("userkey"), c.PostForm("endpoint"), c.PostForm("project_id"))
 	if !r.IsValidEndpoint() {
 		c.HTML(http.StatusBadRequest, "error.html", gin.H{
-			"message": MESSAGE_INVALID_ENDPOINT,
+			"userkey":        r.Userkey,
+			"datastudio_url": utils.GetEnvDataStudioURL(),
+			"message":        MESSAGE_INVALID_ENDPOINT,
 		})
 		return
 	}
 
 	if !r.IsValidUserKey() {
 		c.HTML(http.StatusBadRequest, "error.html", gin.H{
-			"message": MESSAGE_INVALID_USERKEY,
+			"userkey":        r.Userkey,
+			"datastudio_url": utils.GetEnvDataStudioURL(),
+			"message":        MESSAGE_INVALID_USERKEY,
 		})
 		return
 	}
 
 	if job.IsRunning(r.Userkey) {
 		c.HTML(http.StatusNotAcceptable, "error.html", gin.H{
-			"message": MESSAGE_ALREADY_INQUEUE,
+			"userkey":        r.Userkey,
+			"datastudio_url": utils.GetEnvDataStudioURL(),
+			"message":        MESSAGE_ALREADY_INQUEUE,
 		})
 		return
 	}
 
 	if err := job.CreateOrReplace(r.Userkey, r.Endpoint, r.ProjectID); err != nil {
 		c.HTML(http.StatusNotAcceptable, "error.html", gin.H{
-			"message": MESSAGE_FAIL_HANDLEJOB,
+			"userkey":        r.Userkey,
+			"datastudio_url": utils.GetEnvDataStudioURL(),
+			"message":        MESSAGE_FAIL_HANDLEJOB,
 		})
 		return
 	}
@@ -77,15 +86,18 @@ func postBenchmark(c *gin.Context) {
 	q := queue.GetInstance()
 	if err := q.EnqueueTask(r.Userkey); err != nil {
 		c.HTML(http.StatusNotAcceptable, "error.html", gin.H{
-			"message": MESSAGE_FAIL_ENQUEUE,
+			"userkey":        r.Userkey,
+			"datastudio_url": utils.GetEnvDataStudioURL(),
+			"message":        MESSAGE_FAIL_ENQUEUE,
 		})
 		return
 	}
 
 	c.HTML(http.StatusAccepted, "benchmark.html", gin.H{
-		"endpoint":  r.Endpoint,
-		"userkey":   r.Userkey,
-		"projectid": r.ProjectID,
+		"endpoint":       r.Endpoint,
+		"userkey":        r.Userkey,
+		"projectid":      r.ProjectID,
+		"datastudio_url": utils.GetEnvDataStudioURL(),
 	})
 }
 

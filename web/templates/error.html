@@ -6,8 +6,22 @@
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/?userkey={{ .userkey }}">Role Play Competition</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+              <a class="nav-link active" aria-current="page" href="/?userkey={{ .userkey }}">Form</a>
+              <a class="nav-link" href="{{ .datastudio_url }}" target="_blank">Results</a>
+            </div>
+          </div>
+        </div>
+    </nav>
     <h1>Error</h1>
-    <li>{{ .message }}</li>
-    <a href="/">Go to Top Page</a>
+    <p>{{ .message }}</p>
+    <a href="/?userkey={{ .userkey }}">Go back to the top page</p>
 </body>
 </html>

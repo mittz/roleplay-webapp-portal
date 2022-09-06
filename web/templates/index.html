@@ -6,14 +6,31 @@
     integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 </head>
 <body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/?userkey={{ .userkey }}">Role Play Competition</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-link active" aria-current="page" href="/?userkey={{ .userkey }}">Form</a>
+          <a class="nav-link" href="{{ .datastudio_url }}" target="_blank">Results</a>
+        </div>
+      </div>
+    </div>
+  </nav>
   <div class="container">
     <h4>Welcome to Scoring Server</h4>
-    <p>Scoring Server assesses qualities of your web application service based on performance and availability.</p>
+    <p>Scoring Server assesses qualities of your web application service based on performance, availability and cost.</p>
+    <div class="alert alert-danger" role="alert">
+      Open this page by clicking the URL the program host shared via email. Otherwise, your userkey is not filled in the request form below.
+    </div>
   </div>
   <div class="container">
     <h4>Running Jobs</h4>
     <div class="alert alert-primary" role="alert">
-      Running jobs are listed in the following queue.
+      Running jobs are listed in the following queue. Please reload this page if you want to get the up-to-date status.
     </div>
     <div class="p-3 mb-2 bg-light text-dark">
       {{ range .ldaps }}
@@ -26,12 +43,12 @@
     <h4>Request Form</h4>
     <p>You can't submit a new request while your request is running. If you would like to create a new request, you need to wait for your running job to end.</p>
     <div class="alert alert-warning" role="alert">
-      Once your request job starts, the data in your database is initialized.
+      Once your request job starts, your database data will initialized.
     </div>
     <form action="/benchmark" method="POST">
       <div class="form-group">
         <label for="input_userkey">Userkey</label>
-        <input type="text" name="userkey" class="form-control" id="input_userkey" placeholder="Userkey" required>
+        <input type="text" name="userkey" class="form-control" id="input_userkey" value="{{ .userkey }}" required readonly>
         <small id="userkeyHelp" class="form-text text-muted">Userkey is used to validate your request.</small>
       </div>
       <div class="form-group">
@@ -42,16 +59,11 @@
       <div class="form-group">
         <label for="input_projectid">ProjectID</label>
         <input type="text" name="project_id" class="form-control" id="input_projectid" placeholder="ProjectID" required>
-        <small id="projectidHelp" class="form-text text-muted">ProjectID is used to rate service availability of your project resources.</small>
+        <small id="projectidHelp" class="form-text text-muted">ProjectID is used to rate service availability and calculate cost of your project resources.</small>
       </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </div>
   <br>
-  <div class="container">
-    <h4>Results Dashboard</h4>
-    <p>You can see your results in the Data Studio dashboard. Results of other participants also can be seen in the dashboard.</p>
-    <a class="btn btn-primary" href="{{ .datastudio_url }}" role="button" target="_blank">Go to Data Studio</a>
-  </div>
 </body>
 </html>
